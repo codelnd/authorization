@@ -16,7 +16,13 @@ class UserService {
             const newUser = await UserModel.create({email, password: hashPassword, activationLink})
             await mailService.sendActivationLink(email, activationLink)
             const userDto = new UserDto(newUser);
-            const tokens = tokenService.generateTokens({...userDto})
+            const tokens = tokenService.generateTokens({...userDto});
+            await tokenService.saveToken(userDto.id, tokens.refreshToken);
+
+            return {
+                ...tokens,
+                user: userDto
+            }
         }
     }
 }
