@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const jwtModel = require('../models/jwt-model');
 
 class TokenService {
     generateTokens(payload) {
@@ -9,6 +10,17 @@ class TokenService {
             accessToken,
             refreshToken
         }
+    }
+
+    async saveToken(userId, refreshToken) {
+        const tokenData = await jwtModel.findOne({user: userId})
+        if (tokenData) {
+            //Если токен найден - перезаписываем
+            tokenData.refreshToken = refreshToken;
+            return tokenData.save()
+        }
+        const token = await jwtModel.create({user: userId, refreshToken})
+        return token
     }
 }
 
